@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Upload Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .upload-section {
+      margin: 20px 0;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      width: 100%;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .preview {
+      margin: 20px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    .preview img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 2px solid #ddd;
+    }
+    .status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 5px;
+      display: none;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+      display: block;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+      display: block;
+    }
+    .status.info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #3b82f6;
+      display: block;
+    }
+    .result {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 14px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .uploaded-image {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .uploaded-image img {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #10b981;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖼️ Image Upload Test</h1>
+    <p>Use this page to test if ImageKit is configured correctly.</p>
+
+    <div class="upload-section">
+      <label for="fileInput"><strong>Select Image(s):</strong></label>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+
+    <div class="preview" id="preview"></div>
+
+    <button id="uploadBtn" disabled>Upload to Server</button>
+    <button id="clearBtn">Clear</button>
+
+    <div id="status" class="status"></div>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <div id="uploadedImage" class="uploaded-image"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+    const uploadedImageDiv = document.getElementById('uploadedImage');
+
+    let selectedFiles = [];
+
+    fileInput.addEventListener('change', (e) => {
+      selectedFiles = Array.from(e.target.files);
+      showPreviews();
+      uploadBtn.disabled = selectedFiles.length === 0;
+    });
+
+    function showPreviews() {
+      preview.innerHTML = '';
+      selectedFiles.forEach(file => {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      });
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return;
+
+      uploadBtn.disabled = true;
+      statusDiv.className = 'status info';
+      statusDiv.textContent = '⏳ Uploading images...';
+      resultDiv.style.display = 'none';
+      uploadedImageDiv.innerHTML = '';
+
+      try {
+        const uploadedUrls = [];
+        const errors = [];
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          statusDiv.textContent = `⏳ Uploading ${i + 1}/${selectedFiles.length}: ${file.name}`;
+
+          const formData = new FormData();
+          formData.append('file', file);
+
+          try {
+            const response = await fetch('http://localhost:5000/api/upload', {
+              method: 'POST',
+              body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.ok && data.imageUrl) {
+              uploadedUrls.push(data.imageUrl);
+              console.log('✅ Uploaded:', data.imageUrl);
+            } else {
+              errors.push(`${file.name}: ${data.message || 'Upload failed'}`);
+              console.error('❌ Failed:', data);
+            }
+          } catch (err) {
+            errors.push(`${file.name}: ${err.message}`);
+            console.error('❌ Error:', err);
+          }
+        }
+
+        // Show results
+        if (uploadedUrls.length > 0) {
+          statusDiv.className = 'status success';
+          statusDiv.textContent = `✅ Successfully uploaded ${uploadedUrls.length} image(s)!`;
+          
+          resultDiv.style.display = 'block';
+          resultDiv.innerHTML = '<strong>Uploaded URLs:</strong><br>' + 
+            uploadedUrls.map(url => `<a href="${url}" target="_blank">${url}</a>`).join('<br>');
+
+          // Show first uploaded image
+          uploadedImageDiv.innerHTML = `
+            <h3>Preview:</h3>
+            <img src="${uploadedUrls[0]}" alt="Uploaded image">
+          `;
+        }
+
+        if (errors.length > 0) {
+          if (uploadedUrls.length === 0) {
+            statusDiv.className = 'status error';
+            statusDiv.textContent = '❌ All uploads failed!';
+          }
+          resultDiv.style.display = 'block';
+          resultDiv.innerHTML += '<br><br><strong>Errors:</strong><br>' + 
+            errors.map(err => `<span style="color: red;">${err}</span>`).join('<br>');
+        }
+
+      } catch (err) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = `❌ Error: ${err.message}`;
+        console.error(err);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      selectedFiles = [];
+      preview.innerHTML = '';
+      uploadBtn.disabled = true;
+      statusDiv.className = 'status';
+      statusDiv.style.display = 'none';
+      resultDiv.style.display = 'none';
+      uploadedImageDiv.innerHTML = '';
+    });
+  </script>
+</body>
+</html>
