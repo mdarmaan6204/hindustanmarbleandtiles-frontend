@@ -49,7 +49,7 @@ function Returns() {
         if (filters[key]) params.append(key, filters[key]);
       });
 
-      const response = await axios.get(`http://localhost:5000/api/returns?${params}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/returns?${params}`);
       setReturns(response.data.returns || []);
     } catch (err) {
       console.error('Error fetching returns:', err);
@@ -66,7 +66,7 @@ function Returns() {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/customers?search=${query}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers?search=${query}`);
       setSearchResults(response.data.customers || []);
     } catch (err) {
       console.error('Error searching customers:', err);
@@ -80,7 +80,7 @@ function Returns() {
 
     // Fetch customer's invoices
     try {
-      const response = await axios.get(`http://localhost:5000/api/invoices?customerId=${customer._id}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices?customerId=${customer._id}`);
       setCustomerInvoices(response.data.invoices || []);
     } catch (err) {
       console.error('Error fetching customer invoices:', err);
@@ -205,7 +205,7 @@ function Returns() {
         exchangeItems: returnType === 'EXCHANGE' ? exchangeItems : undefined
       };
 
-      await axios.post('http://localhost:5000/api/returns', payload);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/returns`, payload);
       
       showToast({ message: 'Return processed successfully!', type: 'success' });
       setShowReturnModal(false);
@@ -237,7 +237,7 @@ function Returns() {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/products/search?q=${query}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/search?q=${query}`);
       setExchangeProducts(response.data.products || []);
     } catch (err) {
       console.error('Error searching products:', err);

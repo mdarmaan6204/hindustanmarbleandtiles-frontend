@@ -62,7 +62,7 @@ function EditProduct() {
   const fetchProductForEdit = async () => {
     try {
       setFetchingProduct(true);
-      const response = await axios.get(`http://localhost:5000/api/products/${productId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
       const product = response.data.product || response.data;
       
       setOriginalProduct(product);
@@ -158,7 +158,7 @@ function EditProduct() {
         formDataUpload.append('file', file);
         
         const response = await axios.post(
-          'http://localhost:5000/api/upload',
+          `${import.meta.env.VITE_API_URL}/api/upload`,
           formDataUpload,
           {
             headers: {
@@ -387,7 +387,7 @@ function EditProduct() {
 
       // Call update endpoint
       const response = await axios.put(
-        `http://localhost:5000/api/products/${productId}`,
+        `${import.meta.env.VITE_API_URL}/api/products/${productId}`,
         updateData
       );
 

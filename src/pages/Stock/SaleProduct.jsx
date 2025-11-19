@@ -51,7 +51,7 @@ function SaleProduct() {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       setProducts(response.data);
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -111,7 +111,7 @@ function SaleProduct() {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/products/${selectedProduct._id}/stock/reduce`,
+        `${import.meta.env.VITE_API_URL}/api/products/${selectedProduct._id}/stock/reduce`,
         {
           boxes: formData.quantitySold.boxes,
           pieces: formData.quantitySold.pieces,

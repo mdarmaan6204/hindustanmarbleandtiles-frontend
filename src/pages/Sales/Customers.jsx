@@ -57,7 +57,7 @@ function Customers() {
     try {
       setLoading(true);
       const params = searchTerm ? `?search=${searchTerm}` : '';
-      const response = await axios.get(`http://localhost:5000/api/customers${params}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers${params}`);
       setCustomers(response.data.customers || []);
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -107,7 +107,7 @@ function Customers() {
   const handleCollectPayment = async (customer) => {
     // Fetch pending invoices for this customer
     try {
-      const response = await axios.get(`http://localhost:5000/api/invoices?customerId=${customer._id}&paymentStatus=PENDING,PARTIAL`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices?customerId=${customer._id}&paymentStatus=PENDING,PARTIAL`);
       const pendingInvoices = response.data.invoices || [];
       
       setSelectedCustomer(customer);
@@ -193,7 +193,7 @@ function Customers() {
         const paymentAmount = parseFloat(invoice.paymentAmount);
         const discount = invoice.pendingAmount - paymentAmount;
         
-        await axios.post(`http://localhost:5000/api/invoices/${invoice.invoiceId}/payment`, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice.invoiceId}/payment`, {
           paymentAmount,
           paymentMethod: paymentData.paymentMethod,
           paymentDate: new Date().toISOString(),
@@ -227,10 +227,10 @@ function Customers() {
     e.preventDefault();
     try {
       if (editingCustomer) {
-        await axios.put(`http://localhost:5000/api/customers/${editingCustomer._id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/customers/${editingCustomer._id}`, formData);
         showToast({ message: 'Customer updated successfully', type: 'success' });
       } else {
-        await axios.post('http://localhost:5000/api/customers', formData);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, formData);
         showToast({ message: 'Customer created successfully', type: 'success' });
       }
       setShowAddModal(false);
@@ -257,7 +257,7 @@ function Customers() {
     if (!confirm('Are you sure you want to delete this customer?')) return;
     
     try {
-      await axios.delete(`http://localhost:5000/api/customers/${customerId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/customers/${customerId}`);
       showToast({ message: 'Customer deleted successfully', type: 'success' });
       fetchCustomers();
     } catch (err) {

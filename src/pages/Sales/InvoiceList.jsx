@@ -47,7 +47,7 @@ function InvoiceList() {
         if (filters[key]) params.append(key, filters[key]);
       });
 
-      const response = await axios.get(`http://localhost:5000/api/invoices?${params}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices?${params}`);
       setInvoices(response.data.invoices || []);
     } catch (err) {
       console.error('Error fetching invoices:', err);
@@ -109,7 +109,7 @@ function InvoiceList() {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/api/invoices/${invoiceId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/invoices/${invoiceId}`);
       showToast({ message: 'Invoice deleted successfully', type: 'success' });
       fetchInvoices();
     } catch (err) {
@@ -135,7 +135,7 @@ function InvoiceList() {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/invoices/${selectedInvoice._id}/payment`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${selectedInvoice._id}/payment`, {
         paymentAmount,
         paymentMethod: paymentData.paymentMethod,
         nextDueDate: paymentData.nextDueDate || null,
@@ -187,7 +187,7 @@ function InvoiceList() {
       });
     }).then(async () => {
       try {
-        await axios.post(`http://localhost:5000/api/invoices/${invoice._id}/payment`, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}/payment`, {
           paymentAmount: pendingAmount,
           paymentMethod: 'CASH',
           nextDueDate: null,

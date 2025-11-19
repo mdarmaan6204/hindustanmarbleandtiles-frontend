@@ -57,7 +57,7 @@ function ViewProduct() {
     const fetchProducts = async () => {
       try {
         setPageLoading(true);
-        const response = await fetch('http://localhost:5000/api/products', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },

@@ -57,7 +57,7 @@ function PendingPayments() {
   const fetchPendingPayments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/invoices', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices`, {
         params: {
           paymentStatus: 'PENDING,PARTIAL'
         }
@@ -98,7 +98,7 @@ function PendingPayments() {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/invoices/${selectedInvoice._id}/payment`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${selectedInvoice._id}/payment`, {
         paymentAmount,
         paymentMethod: paymentData.paymentMethod,
         nextDueDate: paymentData.nextDueDate || null,
@@ -138,7 +138,7 @@ function PendingPayments() {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/invoices/${selectedInvoice._id}/payment`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${selectedInvoice._id}/payment`, {
         paymentAmount: 0, // No payment, just extending date
         nextDueDate: extendDateData.newDueDate,
         notes: extendDateData.remarks || 'Due date extended'
@@ -176,7 +176,7 @@ function PendingPayments() {
       });
     }).then(async () => {
       try {
-        await axios.post(`http://localhost:5000/api/invoices/${invoice._id}/payment`, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}/payment`, {
           paymentAmount: pendingAmount,
           paymentMethod: 'CASH',
           nextDueDate: null,
@@ -217,7 +217,7 @@ function PendingPayments() {
       // First, create or get customer
       let customer;
       try {
-        const customerResponse = await axios.post('http://localhost:5000/api/customers', {
+        const customerResponse = await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, {
           name: oldBillData.customerName,
           phone: oldBillData.customerPhone || '',
           address: '',
@@ -226,7 +226,7 @@ function PendingPayments() {
         customer = customerResponse.data.customer;
       } catch (err) {
         // If customer already exists, search for them
-        const searchResponse = await axios.get(`http://localhost:5000/api/customers?search=${oldBillData.customerName}`);
+        const searchResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers?search=${oldBillData.customerName}`);
         if (searchResponse.data.customers && searchResponse.data.customers.length > 0) {
           customer = searchResponse.data.customers[0];
         } else {
@@ -276,7 +276,7 @@ function PendingPayments() {
         invoiceDate: new Date(oldBillData.billDate)
       };
 
-      await axios.post('http://localhost:5000/api/invoices', invoicePayload);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices`, invoicePayload);
 
       showToast({ message: 'Old bill added successfully!', type: 'success' });
       setShowAddOldBillModal(false);

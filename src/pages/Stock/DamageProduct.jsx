@@ -63,7 +63,7 @@ function DamageProduct() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (err) {
@@ -231,7 +231,7 @@ function DamageProduct() {
         payload.replacementProductId = replacementProduct._id;
       }
 
-      await axios.post('http://localhost:5000/api/damage/record', payload);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/damage/record`, payload);
 
       showToast({ 
         message: 'Damage recorded successfully', 

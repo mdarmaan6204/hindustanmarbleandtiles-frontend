@@ -43,7 +43,7 @@ function InvoiceDetail() {
   const fetchInvoiceDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/invoices/${invoiceId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${invoiceId}`);
       setInvoice(response.data.invoice);
     } catch (err) {
       console.error('Error fetching invoice:', err);
@@ -55,7 +55,7 @@ function InvoiceDetail() {
 
   const fetchPaymentHistory = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/payments?invoiceId=${invoiceId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments?invoiceId=${invoiceId}`);
       let allPayments = response.data.payments || [];
       
       // If this invoice has initial payment (totalPaid from creation), add it to the timeline
@@ -103,7 +103,7 @@ function InvoiceDetail() {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/invoices/${invoice._id}/payment`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}/payment`, {
         paymentAmount,
         paymentMethod: paymentData.paymentMethod,
         paymentDate: paymentData.paymentDate || new Date().toISOString(),
@@ -139,7 +139,7 @@ function InvoiceDetail() {
   const handleDeleteInvoice = async () => {
     setDeleting(true);
     try {
-      await axios.delete(`http://localhost:5000/api/invoices/${invoice._id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}`);
       
       showToast({ 
         message: 'Invoice cancelled successfully! Stock has been restored and balances updated.', 

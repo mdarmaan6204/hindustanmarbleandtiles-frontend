@@ -92,7 +92,7 @@ function ProductList() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       
       // Handle both response formats: array or {products: array}
       const productData = Array.isArray(response.data) 
@@ -326,7 +326,7 @@ function ProductList() {
       if (appliedFilters.dateTo) params.append('dateTo', appliedFilters.dateTo);
       if (sortBy) params.append('sortBy', sortBy);
       
-      const url = `http://localhost:5000/api/reports/products/pdf?${params.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}/api/reports/products/pdf?${params.toString()}`;
       window.open(url, '_blank');
       
       showToast({ message: 'PDF report opened in new tab', type: 'success' });
@@ -355,7 +355,7 @@ function ProductList() {
       if (appliedFilters.dateTo) params.append('dateTo', appliedFilters.dateTo);
       if (sortBy) params.append('sortBy', sortBy);
       
-      const url = `http://localhost:5000/api/reports/products/excel?${params.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL}/api/reports/products/excel?${params.toString()}`;
       
       const response = await axios.get(url, {
         responseType: 'blob'
@@ -389,7 +389,7 @@ function ProductList() {
     
     setDeleting(true);
     try {
-      await axios.delete(`http://localhost:5000/api/products/${deleteConfirm.productId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${deleteConfirm.productId}`);
       showToast({ 
         message: `${deleteConfirm.productName} deleted successfully`, 
         type: 'success' 

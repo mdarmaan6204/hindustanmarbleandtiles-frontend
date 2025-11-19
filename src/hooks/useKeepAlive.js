@@ -1,34 +1,24 @@
 import { useEffect } from 'react';
+import axios from 'axios';
 
-/**
- * Custom hook to keep the backend server alive on Render free tier
- * Pings the backend health endpoint every 12 minutes to prevent hibernation
- */
 export const useKeepAlive = () => {
   useEffect(() => {
-    const KEEP_ALIVE_INTERVAL = 12 * 60 * 1000; // 12 minutes (Render hibernates after 15 min of inactivity)
-    const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
+    // Ping backend every 14 minutes to keep it awake
     const pingBackend = async () => {
       try {
-        await fetch(`${BACKEND_URL}/health`, {
-          method: 'GET',
-          credentials: 'include'
-        });
-        console.log(`[${new Date().toISOString()}] Keep-alive ping sent to backend`);
-      } catch (error) {
-        console.log(`Keep-alive ping failed: ${error.message}`);
-        // Silent fail - don't disrupt user experience if ping fails
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/ping`);
+        console.log('✅ Backend ping successful:', response.data);
+      } catch (err) {
+        console.error('❌ Backend ping failed:', err.message);
       }
     };
 
-    // Send initial ping after 1 minute
-    const initialTimeout = setTimeout(pingBackend, 60000);
+    // First ping after 5 seconds
+    const initialTimeout = setTimeout(pingBackend, 5000);
 
-    // Set up interval for subsequent pings
-    const interval = setInterval(pingBackend, KEEP_ALIVE_INTERVAL);
+    // Then ping every 14 minutes (840000 ms)
+    const interval = setInterval(pingBackend, 14 * 60 * 1000);
 
-    // Cleanup
     return () => {
       clearTimeout(initialTimeout);
       clearInterval(interval);

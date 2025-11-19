@@ -80,7 +80,7 @@ function EditInvoice() {
 
   const fetchInvoice = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/invoices/${id}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`);
       const inv = response.data.invoice;
       setInvoice(inv);
       setInvoiceType(inv.invoiceType);
@@ -103,7 +103,7 @@ function EditInvoice() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/customers');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`);
       setCustomers(response.data.customers || []);
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -112,7 +112,7 @@ function EditInvoice() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
       
@@ -121,7 +121,7 @@ function EditInvoice() {
         const lastPurchases = {};
         for (const product of productsData) {
           try {
-            const historyRes = await axios.get(`http://localhost:5000/api/products/${product._id}/history?limit=50`);
+            const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${product._id}/history?limit=50`);
             const history = historyRes.data.history || [];
             // Find most recent sell entry
             const lastSell = history.find(h => h.action === 'sell');
@@ -166,7 +166,7 @@ function EditInvoice() {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/customers', newCustomer);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, newCustomer);
       const createdCustomer = response.data.customer;
       setCustomers([...customers, createdCustomer]);
       selectCustomer(createdCustomer);
@@ -524,7 +524,7 @@ function EditInvoice() {
         nextDueDate
       };
 
-      const response = await axios.put(`http://localhost:5000/api/invoices/${id}`, payload);
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, payload);
 
       showToast({ message: 'Invoice updated successfully', type: 'success' });
       setTimeout(() => {

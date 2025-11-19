@@ -25,12 +25,12 @@ function ProductHistory() {
   const fetchProductAndHistory = async () => {
     try {
       // Fetch product details
-      const productRes = await axios.get(`http://localhost:5000/api/products/${productId}`);
+      const productRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
       const productData = productRes.data.product || productRes.data;
       setProduct(productData);
 
       // Fetch stock history
-      const historyRes = await axios.get(`http://localhost:5000/api/stock-history/product/${productId}`);
+      const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/stock-history/product/${productId}`);
       const historyData = historyRes.data.history || historyRes.data || [];
       
       // Log all unique action types for debugging

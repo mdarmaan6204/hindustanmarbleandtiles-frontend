@@ -97,7 +97,7 @@ function AddProduct() {
         formData.append('file', file);
         
         const response = await axios.post(
-          'http://localhost:5000/api/upload',
+          `${import.meta.env.VITE_API_URL}/api/upload`,
           formData,
           {
             headers: {
@@ -177,7 +177,7 @@ function AddProduct() {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       // Handle both array response and {ok, products} response
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
@@ -377,7 +377,7 @@ function AddProduct() {
       // Step 2: Determine if creating new product or adding stock to existing
       if (selectedProduct) {
         // EXISTING PRODUCT - Add stock only
-        const endpoint = `http://localhost:5000/api/products/${selectedProduct._id}/stock/add`;
+        const endpoint = `${import.meta.env.VITE_API_URL}/api/products/${selectedProduct._id}/stock/add`;
         const payload = {
           boxes,
           pieces,
@@ -420,7 +420,7 @@ function AddProduct() {
           ...(imageUrls.length > 0 && { images: imageUrls }),
         };
 
-        const endpoint = 'http://localhost:5000/api/products';
+        const endpoint = `${import.meta.env.VITE_API_URL}/api/products`;
         const response = await axios.post(endpoint, payload);
 
         showToast({ 

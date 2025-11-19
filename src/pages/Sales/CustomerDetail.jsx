@@ -36,7 +36,7 @@ function CustomerDetail() {
   const fetchCustomerDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/customers/${customerId}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers/${customerId}`);
       setCustomer(response.data.customer);
     } catch (err) {
       console.error('Error fetching customer:', err);
@@ -48,7 +48,7 @@ function CustomerDetail() {
 
   const fetchCustomerInvoices = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/invoices`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices`, {
         params: {
           customerId: customerId,
           limit: 100
@@ -62,7 +62,7 @@ function CustomerDetail() {
 
   const fetchCustomerReturns = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/returns`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/returns`, {
         params: {
           customerId: customerId,
           limit: 100
@@ -76,7 +76,7 @@ function CustomerDetail() {
 
   const fetchCustomerPayments = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/payments`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments`, {
         params: {
           customerId: customerId,
           limit: 100

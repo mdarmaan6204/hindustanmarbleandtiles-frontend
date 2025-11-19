@@ -44,7 +44,7 @@ function Payments() {
       if (filters.startDate) params.append('startDate', filters.startDate);
       if (filters.endDate) params.append('endDate', filters.endDate);
 
-      const response = await axios.get(`http://localhost:5000/api/payments?${params}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments?${params}`);
       setPayments(response.data.payments || []);
       
       // Calculate stats
@@ -89,7 +89,7 @@ function Payments() {
 
     setReverting(true);
     try {
-      await axios.delete(`http://localhost:5000/api/payments/${revertingPaymentId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/payments/${revertingPaymentId}`);
       showToast({ message: 'Payment reverted successfully', type: 'success' });
       setShowRevertModal(false);
       setRevertingPaymentId(null);

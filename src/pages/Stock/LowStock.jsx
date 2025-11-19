@@ -64,7 +64,7 @@ function LowStock() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
       
       const productData = Array.isArray(response.data) 
         ? response.data 
@@ -231,7 +231,7 @@ function LowStock() {
 
     try {
       setSaving(true);
-      await axios.patch(`http://localhost:5000/api/products/${currentProduct._id}/low-stock-threshold`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/${currentProduct._id}/low-stock-threshold`, {
         lowStockThreshold: threshold
       });
       
@@ -266,7 +266,7 @@ function LowStock() {
 
     try {
       setSaving(true);
-      await axios.patch('http://localhost:5000/api/products/bulk-low-stock-threshold', {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/bulk-low-stock-threshold`, {
         productIds: selectedProducts,
         lowStockThreshold: threshold
       });

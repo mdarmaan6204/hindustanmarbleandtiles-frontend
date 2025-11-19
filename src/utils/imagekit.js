@@ -6,7 +6,7 @@ const imagekit = new ImageKit({
   publicKey: import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || 'public_key',
   privateKey: import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY || 'private_key',
   urlEndpoint: import.meta.env.VITE_IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/your_imagekit_id',
-  authenticationEndpoint: import.meta.env.VITE_IMAGEKIT_AUTH_ENDPOINT || 'http://localhost:5000/api/imagekit/auth',
+  authenticationEndpoint: import.meta.env.VITE_IMAGEKIT_AUTH_ENDPOINT || `${import.meta.env.VITE_API_URL}/api/imagekit/auth`,
 });
 
 /**
@@ -23,7 +23,7 @@ export const uploadImageToKit = async (file, folder = 'products') => {
     formData.append('folder', `/${folder}`);
 
     // Get authentication signature from backend
-    const authResponse = await fetch('http://localhost:5000/api/imagekit/auth', {
+    const authResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/imagekit/auth`, {
       method: 'GET',
     });
     const authData = await authResponse.json();
@@ -64,7 +64,7 @@ export const uploadImageToKit = async (file, folder = 'products') => {
  */
 export const deleteImageFromKit = async (fileId) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/imagekit/delete/${fileId}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/imagekit/delete/${fileId}`, {
       method: 'DELETE',
     });
     return response.json();
