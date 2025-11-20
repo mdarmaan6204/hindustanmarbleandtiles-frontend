@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import api, { productAPI } from '../../services/api.js';
 import { TILE_TYPES, HSN_NUMBERS, LOCATIONS } from '../../utils/inventory';
 import { productEvents, PRODUCT_EVENTS } from '../../utils/events';
 
@@ -92,7 +92,7 @@ function ProductList() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const response = await productAPI.getAll();
       
       // Handle both response formats: array or {products: array}
       const productData = Array.isArray(response.data) 
@@ -355,9 +355,8 @@ function ProductList() {
       if (appliedFilters.dateTo) params.append('dateTo', appliedFilters.dateTo);
       if (sortBy) params.append('sortBy', sortBy);
       
-      const url = `${import.meta.env.VITE_API_URL}/api/reports/products/excel?${params.toString()}`;
-      
-      const response = await axios.get(url, {
+      const response = await api.get(`/reports/products/excel`, {
+        params: Object.fromEntries(params.entries()),
         responseType: 'blob'
       });
       
@@ -389,7 +388,7 @@ function ProductList() {
     
     setDeleting(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${deleteConfirm.productId}`);
+      await productAPI.delete(deleteConfirm.productId);
       showToast({ 
         message: `${deleteConfirm.productName} deleted successfully`, 
         type: 'success' 

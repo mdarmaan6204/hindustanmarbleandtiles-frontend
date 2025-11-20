@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { paymentAPI } from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -38,13 +38,13 @@ function Payments() {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
-      if (filters.paymentMethod) params.append('paymentMethod', filters.paymentMethod);
-      if (filters.startDate) params.append('startDate', filters.startDate);
-      if (filters.endDate) params.append('endDate', filters.endDate);
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (filters.paymentMethod) params.paymentMethod = filters.paymentMethod;
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
 
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments?${params}`);
+      const response = await paymentAPI.getAll(params);
       setPayments(response.data.payments || []);
       
       // Calculate stats
@@ -89,7 +89,7 @@ function Payments() {
 
     setReverting(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/payments/${revertingPaymentId}`);
+      await api.delete(`/payments/${revertingPaymentId}`);
       showToast({ message: 'Payment reverted successfully', type: 'success' });
       setShowRevertModal(false);
       setRevertingPaymentId(null);

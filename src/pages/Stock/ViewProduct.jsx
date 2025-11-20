@@ -3,6 +3,7 @@ import { Sidebar } from '../../components/Layout/Sidebar';
 import { Header } from '../../components/Layout/Header';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import api, { productAPI } from '../../services/api.js';
 
 /**
  * View Product Page - MongoDB Integration with Pagination
@@ -57,18 +58,17 @@ function ViewProduct() {
     const fetchProducts = async () => {
       try {
         setPageLoading(true);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
+        // Quick per-page override to avoid CORS in dev
+        // Set VITE_DEV_API_URL (e.g., http://localhost:5000) to use local backend only for this page
+        const overrideBase = import.meta.env.VITE_DEV_API_URL || import.meta.env.VITE_LOCAL_API_URL;
+        let response;
+        if (overrideBase) {
+          const baseURL = `${overrideBase}${overrideBase.endsWith('/api') ? '' : '/api'}`;
+          response = await api.get('/products', { baseURL });
+        } else {
+          response = await productAPI.getAll();
         }
-
-        const data = await response.json();
-        setProducts(data.products || []);
+        setProducts(response.data.products || []);
         setError('');
       } catch (err) {
         console.error('Error fetching products:', err);

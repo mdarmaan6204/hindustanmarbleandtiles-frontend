@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { customerAPI, invoiceAPI, paymentAPI } from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -36,7 +36,7 @@ function CustomerDetail() {
   const fetchCustomerDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers/${customerId}`);
+      const response = await customerAPI.getById(customerId);
       setCustomer(response.data.customer);
     } catch (err) {
       console.error('Error fetching customer:', err);
@@ -48,12 +48,7 @@ function CustomerDetail() {
 
   const fetchCustomerInvoices = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices`, {
-        params: {
-          customerId: customerId,
-          limit: 100
-        }
-      });
+      const response = await invoiceAPI.getAll({ customerId, limit: 100 });
       setInvoices(response.data.invoices || []);
     } catch (err) {
       console.error('Error fetching invoices:', err);
@@ -62,12 +57,7 @@ function CustomerDetail() {
 
   const fetchCustomerReturns = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/returns`, {
-        params: {
-          customerId: customerId,
-          limit: 100
-        }
-      });
+      const response = await api.get('/returns', { params: { customerId, limit: 100 } });
       setReturns(response.data.returns || []);
     } catch (err) {
       console.error('Error fetching returns:', err);
@@ -76,12 +66,7 @@ function CustomerDetail() {
 
   const fetchCustomerPayments = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments`, {
-        params: {
-          customerId: customerId,
-          limit: 100
-        }
-      });
+      const response = await paymentAPI.getAll({ customerId, limit: 100 });
       setPayments(response.data.payments || []);
     } catch (err) {
       console.error('Error fetching payments:', err);

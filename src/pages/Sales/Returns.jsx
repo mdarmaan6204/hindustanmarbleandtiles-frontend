@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -49,7 +49,7 @@ function Returns() {
         if (filters[key]) params.append(key, filters[key]);
       });
 
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/returns?${params}`);
+      const response = await api.get(`/returns`, { params: Object.fromEntries(params.entries()) });
       setReturns(response.data.returns || []);
     } catch (err) {
       console.error('Error fetching returns:', err);
@@ -66,7 +66,7 @@ function Returns() {
     }
 
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers?search=${query}`);
+      const response = await api.get(`/customers`, { params: { search: query } });
       setSearchResults(response.data.customers || []);
     } catch (err) {
       console.error('Error searching customers:', err);
@@ -80,7 +80,7 @@ function Returns() {
 
     // Fetch customer's invoices
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices?customerId=${customer._id}`);
+      const response = await api.get(`/invoices`, { params: { customerId: customer._id } });
       setCustomerInvoices(response.data.invoices || []);
     } catch (err) {
       console.error('Error fetching customer invoices:', err);
@@ -205,7 +205,7 @@ function Returns() {
         exchangeItems: returnType === 'EXCHANGE' ? exchangeItems : undefined
       };
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/returns`, payload);
+      await api.post(`/returns`, payload);
       
       showToast({ message: 'Return processed successfully!', type: 'success' });
       setShowReturnModal(false);
@@ -237,7 +237,7 @@ function Returns() {
     }
 
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/search?q=${query}`);
+      const response = await api.get(`/products/search`, { params: { q: query } });
       setExchangeProducts(response.data.products || []);
     } catch (err) {
       console.error('Error searching products:', err);

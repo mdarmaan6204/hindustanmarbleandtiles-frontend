@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import api, { productAPI } from '../../services/api.js';
 import { TILE_TYPES, HSN_NUMBERS, LOCATIONS } from '../../utils/inventory';
 
 /**
@@ -64,7 +64,7 @@ function LowStock() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const response = await productAPI.getAll();
       
       const productData = Array.isArray(response.data) 
         ? response.data 
@@ -231,7 +231,7 @@ function LowStock() {
 
     try {
       setSaving(true);
-      await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/${currentProduct._id}/low-stock-threshold`, {
+      await api.patch(`/products/${currentProduct._id}/low-stock-threshold`, {
         lowStockThreshold: threshold
       });
       
@@ -266,7 +266,7 @@ function LowStock() {
 
     try {
       setSaving(true);
-      await axios.patch(`${import.meta.env.VITE_API_URL}/api/products/bulk-low-stock-threshold`, {
+      await api.patch(`/products/bulk-low-stock-threshold`, {
         productIds: selectedProducts,
         lowStockThreshold: threshold
       });

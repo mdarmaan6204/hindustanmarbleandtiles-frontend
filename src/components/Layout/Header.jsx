@@ -1,23 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { LogoutModal } from "./LogoutModal.jsx";
 
 export const Header = ({ user, onLogout }) => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    onLogout();
+  };
+
   return (
-    <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="bg-white text-blue-600 px-3 py-2 rounded font-bold text-lg">HT</div>
-          <h1 className="text-2xl font-bold">Hindustan Tiles ERP</h1>
+    <>
+      <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="bg-white text-blue-600 px-3 py-2 rounded font-bold text-lg">HT</div>
+            <h1 className="text-2xl font-bold">Hindustan Tiles ERP</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-semibold">{user?.name}</span>
+            <button
+              onClick={handleLogoutClick}
+              className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded text-sm font-medium transition"
+              title="Click to logout"
+            >
+              🚪 Logout
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm">{user?.name}</span>
-          <button
-            onClick={onLogout}
-            className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded text-sm font-medium transition"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </header>
+      </header>
+      <LogoutModal 
+        isOpen={showLogoutModal} 
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
+    </>
   );
 };

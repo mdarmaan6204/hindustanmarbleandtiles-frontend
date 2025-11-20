@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import { productAPI, uploadAPI } from '../../services/api.js';
 import { 
   TILE_TYPES, 
   getPiecesPerBox,
@@ -93,18 +93,7 @@ function AddProduct() {
       const file = files[i];
       
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/upload`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
+        const response = await uploadAPI.uploadImage(file);
         
         if (response.data.ok && response.data.imageUrl) {
           uploadedUrls.push(response.data.imageUrl);
@@ -177,14 +166,22 @@ function AddProduct() {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      console.log('🔄 Fetching products...');
+      const response = await productAPI.getAll();
       // Handle both array response and {ok, products} response
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
+      console.log('✅ Products loaded successfully:', productsData?.length || 0, 'items');
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error('❌ Error fetching products:', {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        url: err.config?.url
+      });
       showToast({ 
-        message: 'Failed to load products. Please refresh the page.', 
+        message: `Failed to load products: ${err.response?.data?.message || err.message}`, 
         type: 'error' 
       });
     }
@@ -377,14 +374,13 @@ function AddProduct() {
       // Step 2: Determine if creating new product or adding stock to existing
       if (selectedProduct) {
         // EXISTING PRODUCT - Add stock only
-        const endpoint = `${import.meta.env.VITE_API_URL}/api/products/${selectedProduct._id}/stock/add`;
         const payload = {
           boxes,
           pieces,
           ...(finalLocation && { location: finalLocation })
         };
 
-        const response = await axios.post(endpoint, payload);
+        const response = await productAPI.addStock(selectedProduct._id, payload);
 
         showToast({ 
           message: `✅ Stock added to ${selectedProduct.productName}`,
@@ -420,8 +416,7 @@ function AddProduct() {
           ...(imageUrls.length > 0 && { images: imageUrls }),
         };
 
-        const endpoint = `${import.meta.env.VITE_API_URL}/api/products`;
-        const response = await axios.post(endpoint, payload);
+        const response = await productAPI.create(payload);
 
         showToast({ 
           message: `✅ ${finalProductName} created successfully`,

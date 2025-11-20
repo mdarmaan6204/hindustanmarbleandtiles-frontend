@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import api, { productAPI } from '../../services/api.js';
 
 /**
  * ProductHistory Page - View All Transaction History
@@ -25,12 +25,12 @@ function ProductHistory() {
   const fetchProductAndHistory = async () => {
     try {
       // Fetch product details
-      const productRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
+      const productRes = await productAPI.getById(productId);
       const productData = productRes.data.product || productRes.data;
       setProduct(productData);
 
       // Fetch stock history
-      const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/stock-history/product/${productId}`);
+      const historyRes = await api.get(`/stock-history/product/${productId}`);
       const historyData = historyRes.data.history || historyRes.data || [];
       
       // Log all unique action types for debugging

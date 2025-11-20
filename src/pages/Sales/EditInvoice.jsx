@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api, { invoiceAPI, customerAPI, productAPI } from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -80,7 +80,7 @@ function EditInvoice() {
 
   const fetchInvoice = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`);
+      const response = await invoiceAPI.getById(id);
       const inv = response.data.invoice;
       setInvoice(inv);
       setInvoiceType(inv.invoiceType);
@@ -103,7 +103,7 @@ function EditInvoice() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`);
+      const response = await customerAPI.getAll();
       setCustomers(response.data.customers || []);
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -112,7 +112,7 @@ function EditInvoice() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const response = await productAPI.getAll();
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
       
@@ -121,7 +121,7 @@ function EditInvoice() {
         const lastPurchases = {};
         for (const product of productsData) {
           try {
-            const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${product._id}/history?limit=50`);
+            const historyRes = await productAPI.getHistory(product._id, { limit: 50 });
             const history = historyRes.data.history || [];
             // Find most recent sell entry
             const lastSell = history.find(h => h.action === 'sell');
@@ -166,7 +166,7 @@ function EditInvoice() {
       return;
     }
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, newCustomer);
+      const response = await customerAPI.create(newCustomer);
       const createdCustomer = response.data.customer;
       setCustomers([...customers, createdCustomer]);
       selectCustomer(createdCustomer);
@@ -524,7 +524,7 @@ function EditInvoice() {
         nextDueDate
       };
 
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, payload);
+      const response = await invoiceAPI.update(id, payload);
 
       showToast({ message: 'Invoice updated successfully', type: 'success' });
       setTimeout(() => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import api, { productAPI } from '../../services/api.js';
 
 /**
  * Damage Product Page - Simplified Single Form
@@ -63,7 +63,7 @@ function DamageProduct() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const response = await productAPI.getAll();
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (err) {
@@ -231,7 +231,7 @@ function DamageProduct() {
         payload.replacementProductId = replacementProduct._id;
       }
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/damage/record`, payload);
+      await api.post(`/damage/record`, payload);
 
       showToast({ 
         message: 'Damage recorded successfully', 

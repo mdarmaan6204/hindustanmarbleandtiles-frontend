@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { invoiceAPI, paymentAPI } from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -43,7 +43,7 @@ function InvoiceDetail() {
   const fetchInvoiceDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${invoiceId}`);
+      const response = await invoiceAPI.getById(invoiceId);
       setInvoice(response.data.invoice);
     } catch (err) {
       console.error('Error fetching invoice:', err);
@@ -55,7 +55,7 @@ function InvoiceDetail() {
 
   const fetchPaymentHistory = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/payments?invoiceId=${invoiceId}`);
+      const response = await paymentAPI.getAll({ invoiceId });
       let allPayments = response.data.payments || [];
       
       // If this invoice has initial payment (totalPaid from creation), add it to the timeline
@@ -103,7 +103,7 @@ function InvoiceDetail() {
     }
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}/payment`, {
+      await api.post(`/invoices/${invoice._id}/payment`, {
         paymentAmount,
         paymentMethod: paymentData.paymentMethod,
         paymentDate: paymentData.paymentDate || new Date().toISOString(),
@@ -139,7 +139,7 @@ function InvoiceDetail() {
   const handleDeleteInvoice = async () => {
     setDeleting(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/invoices/${invoice._id}`);
+      await api.delete(`/invoices/${invoice._id}`);
       
       showToast({ 
         message: 'Invoice cancelled successfully! Stock has been restored and balances updated.', 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import api, { productAPI, uploadAPI } from '../../services/api.js';
 import { 
   TILE_TYPES, 
   getPiecesPerBox,
@@ -62,7 +62,7 @@ function EditProduct() {
   const fetchProductForEdit = async () => {
     try {
       setFetchingProduct(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
+      const response = await productAPI.getById(productId);
       const product = response.data.product || response.data;
       
       setOriginalProduct(product);
@@ -154,23 +154,12 @@ function EditProduct() {
     
     for (const file of files) {
       try {
-        const formDataUpload = new FormData();
-        formDataUpload.append('file', file);
-        
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/upload`,
-          formDataUpload,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
-        
-        if (response.data.ok && response.data.imageUrl) {
-          uploadedUrls.push(response.data.imageUrl);
-        } else if (response.data.url) {
-          uploadedUrls.push(response.data.url);
+        const response = await uploadAPI.uploadImage(file);
+        const data = response.data;
+        if (data?.ok && data.imageUrl) {
+          uploadedUrls.push(data.imageUrl);
+        } else if (data?.url) {
+          uploadedUrls.push(data.url);
         }
       } catch (err) {
         console.error('Image upload error:', err);
@@ -386,10 +375,7 @@ function EditProduct() {
       };
 
       // Call update endpoint
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/products/${productId}`,
-        updateData
-      );
+      await productAPI.update(productId, updateData);
 
       showToast({ 
         message: `${productName} updated successfully`, 

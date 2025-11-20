@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 /**
  * Main Layout Wrapper
  * Used for all authenticated pages
+ * Manages user session and permissions
  */
 export const MainLayout = ({ children }) => {
   const navigate = useNavigate();
@@ -19,13 +20,31 @@ export const MainLayout = ({ children }) => {
   }, [user, loading, navigate]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-lg">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen text-lg">
+        ⏳ Loading...
+      </div>
+    );
   }
 
   if (!user) return null;
 
   const handleLogout = () => {
+    // Clear all storage and state
     logout();
+    
+    // Optional: Clear any cached API data
+    try {
+      // Clear any IndexedDB if used
+      if (window.indexedDB) {
+        const dbs = await window.indexedDB.databases?.();
+        dbs?.forEach((db) => window.indexedDB.deleteDatabase(db.name));
+      }
+    } catch (err) {
+      console.warn('Could not clear IndexedDB:', err);
+    }
+    
+    // Redirect to login
     navigate('/login');
   };
 

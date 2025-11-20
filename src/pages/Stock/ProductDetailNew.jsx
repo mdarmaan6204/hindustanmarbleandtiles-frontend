@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import { productAPI } from '../../services/api.js';
 
 /**
  * ProductDetail Page - View Product Information
@@ -25,7 +25,7 @@ function ProductDetail() {
 
   const fetchProductDetail = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
+      const response = await productAPI.getById(productId);
       const productData = response.data.product || response.data;
       setProduct(productData);
       
@@ -77,7 +77,7 @@ function ProductDetail() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${productId}`);
+      await productAPI.delete(productId);
       showToast({ 
         message: `${product.productName} deleted successfully`, 
         type: 'success' 

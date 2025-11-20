@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -25,7 +25,7 @@ function ReturnDetail() {
   const fetchReturnDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/returns/${returnId}`);
+      const response = await api.get(`/returns/${returnId}`);
       setReturnData(response.data.return);
     } catch (err) {
       console.error('Error fetching return details:', err);

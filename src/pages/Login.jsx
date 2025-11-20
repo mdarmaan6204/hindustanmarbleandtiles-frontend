@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+import { verifyCredentials } from '../constants/users';
 
 function Login() {
   const [identifier, setIdentifier] = useState('');
@@ -8,25 +9,38 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
-      // TODO: Enable backend authentication on deployment
-      // For now, mock login for demo purposes
-      localStorage.setItem('token', 'demo-token-' + Date.now());
-      localStorage.setItem('user', JSON.stringify({
-        _id: '123',
-        name: 'Admin User',
-        email: identifier,
-        phone: '9876543210',
-        role: 'admin'
-      }));
+      // Validate input
+      if (!identifier.trim() || !password.trim()) {
+        setError('Please enter username/phone and password');
+        setLoading(false);
+        return;
+      }
+
+      // Frontend-only authentication
+      const user = verifyCredentials(identifier, password);
+
+      if (!user) {
+        setError('Invalid username/phone or password');
+        setLoading(false);
+        return;
+      }
+
+      // Login successful - store user data and permissions
+      login(user);
+
+      // Redirect to dashboard
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -45,19 +59,24 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email or Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username or Phone
+            </label>
             <input
               type="text"
-              placeholder="admin@hindmarble.com or 9876543210"
+              placeholder="wasim or 8581808501 or nawab"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <input
               type="password"
               placeholder="••••••••"
@@ -65,6 +84,7 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
@@ -83,11 +103,7 @@ function Login() {
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200 text-center text-xs text-gray-600">
-          <p>Demo Credentials:</p>
-          <p>Email: admin@hindmarble.com</p>
-          <p>Password: admin123</p>
-        </div>
+
       </div>
     </div>
   );

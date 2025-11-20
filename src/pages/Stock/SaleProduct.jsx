@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
+import { productAPI } from '../../services/api.js';
 import DualUnitInput from '../../components/DualUnitInput';
 import { getPiecesPerBox, formatQuantityDisplay } from '../../utils/inventory';
 
@@ -51,8 +51,8 @@ function SaleProduct() {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
-      setProducts(response.data);
+      const response = await productAPI.getAll();
+      setProducts(Array.isArray(response.data) ? response.data : response.data.products || []);
     } catch (err) {
       console.error('Error fetching products:', err);
     }
@@ -110,8 +110,8 @@ function SaleProduct() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/products/${selectedProduct._id}/stock/reduce`,
+      await productAPI.reduceStock(
+        selectedProduct._id,
         {
           boxes: formData.quantitySold.boxes,
           pieces: formData.quantitySold.pieces,

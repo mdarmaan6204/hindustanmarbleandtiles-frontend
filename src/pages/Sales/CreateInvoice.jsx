@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { customerAPI, productAPI, invoiceAPI } from '../../services/api.js';
 import { Sidebar } from '../../components/Layout/Sidebar';
 import { useToast } from '../../components/Toast';
 
@@ -87,7 +87,7 @@ function CreateInvoice() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`);
+      const response = await customerAPI.getAll();
       setCustomers(response.data.customers || []);
     } catch (err) {
       console.error('Error fetching customers:', err);
@@ -96,7 +96,7 @@ function CreateInvoice() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const response = await productAPI.getAll();
       const productsData = response.data.products || response.data;
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (err) {
@@ -134,7 +134,7 @@ function CreateInvoice() {
       // Check if editing existing customer or creating new
       if (newCustomer._id) {
         // Update existing customer
-        const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/customers/${newCustomer._id}`, newCustomer);
+        const response = await customerAPI.update(newCustomer._id, newCustomer);
         const updatedCustomer = response.data.customer;
         setCustomers(customers.map(c => c._id === updatedCustomer._id ? updatedCustomer : c));
         selectCustomer(updatedCustomer);
@@ -143,7 +143,7 @@ function CreateInvoice() {
         showToast({ message: 'Customer updated successfully', type: 'success' });
       } else {
         // Create new customer
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/customers`, newCustomer);
+        const response = await customerAPI.create(newCustomer);
         const createdCustomer = response.data.customer;
         setCustomers([...customers, createdCustomer]);
         selectCustomer(createdCustomer);
@@ -442,7 +442,7 @@ function CreateInvoice() {
 
   const openPrintWindow = () => {
     // Fetch latest invoice data from server to ensure we have updated data
-    axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${savedInvoice._id}`)
+    invoiceAPI.getById(savedInvoice._id)
       .then(response => {
         const latestInvoice = response.data.invoice;
         const invoiceHTML = generateInvoicePDF(latestInvoice, 'A5');
@@ -471,7 +471,7 @@ function CreateInvoice() {
 
   const savePDF = () => {
     // Fetch latest invoice data from server
-    axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${savedInvoice._id}`)
+    invoiceAPI.getById(savedInvoice._id)
       .then(response => {
         const latestInvoice = response.data.invoice;
         const invoiceHTML = generateInvoicePDF(latestInvoice, 'A5');
@@ -935,7 +935,7 @@ function CreateInvoice() {
         payload.customInvoiceNumber = customInvoiceNumber.trim();
       }
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices`, payload);
+      const response = await invoiceAPI.create(payload);
       setSavedInvoice(response.data.invoice);
       setShowSuccessModal(true);
       showToast({ message: 'Invoice created successfully!', type: 'success' });
